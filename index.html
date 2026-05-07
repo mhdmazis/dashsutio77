@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashstudio 77 – Price List</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f5f5f3; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 3rem; }
+
+  .pl-wrap { max-width: 480px; width: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+
+  /* HEADER */
+  .pl-header { text-align: center; margin-bottom: 1.5rem; }
+  .pl-brand { font-size: 13px; letter-spacing: 0.15em; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+  .pl-title { font-size: 32px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.5px; }
+  .pl-title::before, .pl-title::after { content: '—'; font-size: 18px; color: #ccc; margin: 0 10px; vertical-align: middle; font-weight: 400; }
+
+  /* PACKAGE */
+  .pkg { border-radius: 14px; margin-bottom: 12px; overflow: hidden; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; text-decoration: none; display: block; }
+  .pkg:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); }
+  .pkg:active { transform: translateY(0); }
+  .pkg-header { padding: 14px 18px 10px; text-align: center; }
+  .pkg-name { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 3px; }
+  .pkg-sub { font-size: 13px; margin-bottom: 8px; }
+  .price-pill { display: inline-block; border-radius: 999px; padding: 6px 22px; font-size: 17px; font-weight: 700; }
+  .pkg-features { display: flex; justify-content: center; gap: 0; padding: 10px 16px 14px; flex-wrap: wrap; }
+  .feat { font-size: 12.5px; padding: 0 12px; position: relative; }
+  .feat:not(:last-child)::after { content: '•'; position: absolute; right: -2px; top: 0; }
+
+  /* SPRING */
+  .spring .pkg-header { background: #d4e8c4; }
+  .spring .pkg-name { color: #3d6b25; }
+  .spring .pkg-sub { color: #4a7a2e; }
+  .spring .price-pill { background: #3d6b25; color: #e8f5dd; }
+  .spring .pkg-features { background: #e8f5dd; color: #3a6022; }
+
+  /* SUMMER */
+  .summer .pkg-header { background: #f0e4a0; }
+  .summer .pkg-name { color: #7a5e10; }
+  .summer .pkg-sub { color: #8a6a12; }
+  .summer .price-pill { background: #7a5e10; color: #fdf5d0; }
+  .summer .pkg-features { background: #fdf5d0; color: #6a4f0e; }
+
+  /* AUTUMN */
+  .autumn .pkg-header { background: #f5c9b0; }
+  .autumn .pkg-name { color: #8a3a18; }
+  .autumn .pkg-sub { color: #9a4020; }
+  .autumn .price-pill { background: #8a3a18; color: #fdf0e8; }
+  .autumn .pkg-features { background: #fdf0e8; color: #7a3015; }
+
+  /* EDITOR */
+  .editor .pkg-header { background: #bcd8e8; }
+  .editor .pkg-name { color: #1a5070; }
+  .editor .pkg-features { background: #e4f2fa; color: #1a4f6e; flex-direction: column; align-items: flex-start; padding: 12px 18px; gap: 4px; }
+  .editor .price-pill { background: #1a5070; color: #e4f2fa; }
+  .editor .feat { padding: 0; }
+  .editor .feat::before { content: '•'; margin-right: 6px; }
+  .editor .feat::after { display: none; }
+
+  /* CLICK HINT */
+  .click-hint { text-align: center; font-size: 11px; color: #aaa; margin-bottom: 16px; letter-spacing: 0.03em; }
+  .click-hint span { display: inline-flex; align-items: center; gap: 4px; }
+
+  /* WA */
+  .wa-section { border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; background: #25d366; text-align: center; }
+  .wa-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.8); margin-bottom: 6px; }
+  .wa-number-display { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .wa-number-edit { display: none; font-size: 18px; font-weight: 700; color: #fff; outline: none; background: rgba(255,255,255,0.2); border: none; text-align: center; width: 100%; margin-bottom: 10px; border-radius: 6px; padding: 4px 8px; }
+  .wa-btn { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #128c5e; border: none; border-radius: 999px; padding: 10px 24px; font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; transition: background 0.15s; }
+  .wa-btn:hover { background: #f0fdf6; }
+  .wa-icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .wa-edit-hint { display: none; font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 6px; }
+
+  .location { text-align: center; font-size: 12.5px; color: #888; margin-bottom: 16px; }
+
+  /* LOCK */
+  .lock-bar { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+  .lock-btn { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #bbb; background: transparent; border: 1px solid #ddd; border-radius: 999px; padding: 5px 14px; cursor: pointer; transition: all 0.15s; }
+  .lock-btn:hover { color: #888; border-color: #bbb; }
+  .lock-btn.active { color: #25d366; border-color: #25d366; }
+
+  /* COLOR TOOLBAR */
+  .color-toolbar { display: none; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; padding: 12px 14px; background: #fff; border-radius: 12px; border: 1px solid #eee; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .color-toolbar.visible { display: flex; }
+  .ct-label { font-size: 11px; color: #888; width: 100%; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+  .color-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .color-item label { font-size: 10px; color: #aaa; }
+  .color-item input[type=color] { width: 30px; height: 30px; border: 1px solid #eee; border-radius: 6px; cursor: pointer; padding: 2px; background: #fff; }
+  .toolbar-close { margin-left: auto; font-size: 12px; color: #e24b4a; border: 1px solid #e24b4a; background: transparent; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+  .toolbar-close:hover { background: #fff0f0; }
+
+  /* contenteditable */
+  [contenteditable="true"] { outline: none; cursor: text; border-radius: 3px; transition: background 0.15s; }
+  [contenteditable="true"]:hover { background: rgba(0,0,0,0.06); }
+  [contenteditable="true"]:focus { background: rgba(0,0,0,0.09); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: #fff; border-radius: 16px; padding: 24px; width: 290px; box-shadow: 0 8px 32px rgba(0,0,0,0.14); }
+  .modal-title { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: #888; margin-bottom: 14px; }
+  .modal-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 9px 12px; font-size: 14px; color: #1a1a1a; outline: none; margin-bottom: 8px; }
+  .modal-input:focus { border-color: #999; }
+  .modal-err { font-size: 12px; color: #e24b4a; margin-bottom: 8px; min-height: 16px; }
+  .modal-btns { display: flex; gap: 8px; }
+  .modal-ok { flex: 1; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .modal-ok:hover { background: #333; }
+  .modal-cancel { flex: 1; background: transparent; color: #888; border: 1px solid #ddd; border-radius: 8px; padding: 9px; font-size: 13px; cursor: pointer; }
+  .modal-cancel:hover { background: #f5f5f5; }
+
+  /* PKG CLICK MODAL */
+  .pkg-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: flex-end; justify-content: center; padding: 0; }
+  .pkg-modal-overlay.open { display: flex; }
+  .pkg-modal-box { background: #fff; border-radius: 20px 20px 0 0; padding: 24px 24px 32px; width: 100%; max-width: 480px; box-shadow: 0 -4px 32px rgba(0,0,0,0.12); animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .pkg-modal-tag { display: inline-block; border-radius: 999px; padding: 4px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .pkg-modal-name { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+  .pkg-modal-price { font-size: 28px; font-weight: 700; color: #1a1a1a; margin-bottom: 14px; }
+  .pkg-modal-feats { list-style: none; margin-bottom: 20px; }
+  .pkg-modal-feats li { font-size: 14px; color: #444; padding: 5px 0; border-bottom: 0.5px solid #f0f0f0; display: flex; align-items: center; gap: 8px; }
+  .pkg-modal-feats li::before { content: '✓'; color: #25d366; font-weight: 700; }
+  .pkg-modal-wa { display: flex; align-items: center; justify-content: center; gap: 8px; background: #25d366; color: #fff; border: none; border-radius: 999px; padding: 13px 28px; font-size: 15px; font-weight: 700; cursor: pointer; width: 100%; text-decoration: none; transition: background 0.15s; margin-bottom: 10px; }
+  .pkg-modal-wa:hover { background: #1ebe5d; }
+  .pkg-modal-close { width: 100%; background: transparent; border: 1px solid #eee; border-radius: 999px; padding: 10px; font-size: 13px; color: #888; cursor: pointer; }
+  .pkg-modal-close:hover { background: #f5f5f5; }
+</style>
+</head>
+<body>
+<div class="pl-wrap">
+
+  <!-- LOCK BAR -->
+  <div class="lock-bar">
+    <button class="lock-btn" id="lock-btn" onclick="openModal()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Edit mode
+    </button>
+  </div>
+
+  <!-- COLOR TOOLBAR -->
+  <div class="color-toolbar" id="color-toolbar">
+    <div class="ct-label">🎨 Ubah warna paket</div>
+    <div class="color-item"><input type="color" id="c-spring-bg" value="#d4e8c4"><label>Spring BG</label></div>
+    <div class="color-item"><input type="color" id="c-spring-pill" value="#3d6b25"><label>Spring Pill</label></div>
+    <div class="color-item"><input type="color" id="c-summer-bg" value="#f0e4a0"><label>Summer BG</label></div>
+    <div class="color-item"><input type="color" id="c-summer-pill" value="#7a5e10"><label>Summer Pill</label></div>
+    <div class="color-item"><input type="color" id="c-autumn-bg" value="#f5c9b0"><label>Autumn BG</label></div>
+    <div class="color-item"><input type="color" id="c-autumn-pill" value="#8a3a18"><label>Autumn Pill</label></div>
+    <div class="color-item"><input type="color" id="c-editor-bg" value="#bcd8e8"><label>Editor BG</label></div>
+    <div class="color-item"><input type="color" id="c-editor-pill" value="#1a5070"><label>Editor Pill</label></div>
+    <div class="color-item"><input type="color" id="c-wa" value="#25d366"><label>WA BG</label></div>
+    <button class="toolbar-close" onclick="lockEdit()">🔒 Kunci kembali</button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="pl-header">
+    <div class="pl-brand" id="txt-brand" contenteditable="false">Dashstudio 77</div>
+    <div class="pl-title" id="txt-title" contenteditable="false">Price List</div>
+  </div>
+
+  <div class="click-hint"><span>👆 Klik paket untuk pesan langsung</span></div>
+
+  <!-- SPRING -->
+  <div class="pkg spring" id="pkg-spring" onclick="showPkg('spring')">
+    <div class="pkg-header" id="spring-header">
+      <div class="pkg-name" id="spring-name" contenteditable="false">Paket Spring</div>
+      <div class="pkg-sub" id="spring-sub" contenteditable="false">Videografer Only</div>
+      <span class="price-pill" id="spring-pill" contenteditable="false">750.000</span>
+    </div>
+    <div class="pkg-features" id="spring-feat">
+      <span class="feat" contenteditable="false">Maks. 4 Jam</span>
+      <span class="feat" contenteditable="false">1 Konten</span>
+      <span class="feat" contenteditable="false">1x Visit</span>
+    </div>
+  </div>
+
+  <!-- SUMMER -->
+  <div class="pkg summer" id="pkg-summer" onclick="showPkg('summer')">
+    <div class="pkg-header" id="summer-header">
+      <div class="pkg-name" id="summer-name" contenteditable="false">Paket Summer</div>
+      <div class="pkg-sub" id="summer-sub" contenteditable="false">Videografer + Editing</div>
+      <span class="price-pill" id="summer-pill" contenteditable="false">1.100.000</span>
+    </div>
+    <div class="pkg-features" id="summer-feat">
+      <span class="feat" contenteditable="false">1x Visit</span>
+      <span class="feat" contenteditable="false">Videografer 5 Jam</span>
+      <span class="feat" contenteditable="false">Proses Editing 48 Jam</span>
+    </div>
+  </div>
+
+  <!-- AUTUMN -->
+  <div class="pkg autumn" id="pkg-autumn" onclick="showPkg('autumn')">
+    <div class="pkg-header" id="autumn-header">
+      <div class="pkg-name" id="autumn-name" contenteditable="false">Paket Autumn</div>
+      <div class="pkg-sub" id="autumn-sub" contenteditable="false">Videografer + Editing</div>
+      <span class="price-pill" id="autumn-pill" contenteditable="false">1.500.000</span>
+    </div>
+    <div class="pkg-features" id="autumn-feat">
+      <span class="feat" contenteditable="false">1x Visit</span>
+      <span class="feat" contenteditable="false">Videografer 6 Jam</span>
+      <span class="feat" contenteditable="false">Proses Editing 24 Jam</span>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="pkg editor" id="pkg-editor" onclick="showPkg('editor')">
+    <div class="pkg-header" id="editor-header">
+      <div class="pkg-name" id="editor-name" contenteditable="false">Editor Only</div>
+      <span class="price-pill" id="editor-pill" contenteditable="false">400.000</span>
+    </div>
+    <div class="pkg-features" id="editor-feat">
+      <span class="feat" contenteditable="false">Editing bebas revisi sampai ACC Brand</span>
+      <span class="feat" contenteditable="false">Output 24 Jam</span>
+      <span class="feat" contenteditable="false">Maks. Durasi Video 1 Menit 30 Detik</span>
+    </div>
+  </div>
+
+  <!-- WA -->
+  <div class="wa-section" id="wa-section">
+    <div class="wa-label">Hubungi Kami</div>
+    <div class="wa-number-display" id="wa-display">+6287842480056</div>
+    <input class="wa-number-edit" id="wa-edit" type="text" value="+6287842480056">
+    <div class="wa-edit-hint" id="wa-hint">✏️ Edit nomor lalu klik di luar untuk simpan</div>
+    <a class="wa-btn" href="#" onclick="openWA(event, '')">
+      <svg class="wa-icon" viewBox="0 0 24 24" fill="#128c5e"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.524 5.847L.057 23.882l6.19-1.443A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.805 9.805 0 01-5.001-1.368l-.36-.214-3.713.865.938-3.62-.234-.373A9.79 9.79 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+      Chat Sekarang via WhatsApp
+    </a>
+  </div>
+
+  <div class="location">
+    <span>📍</span>
+    <span id="txt-location" contenteditable="false">Location: Jabodetabek Only</span>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <div class="modal-title">🔐 Masukkan Password</div>
+    <div class="modal-sub">Hanya admin yang bisa mengubah tampilan</div>
+    <input class="modal-input" id="modal-input" type="password" placeholder="Password..." onkeydown="if(event.key==='Enter')checkPass()">
+    <div class="modal-err" id="modal-err"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Batal</button>
+      <button class="modal-ok" onclick="checkPass()">Masuk</button>
+    </div>
+  </div>
+</div>
+
+<!-- PACKAGE DETAIL MODAL -->
+<div class="pkg-modal-overlay" id="pkg-modal" onclick="closePkgModal(event)">
+  <div class="pkg-modal-box" id="pkg-modal-box">
+    <div class="pkg-modal-tag" id="pm-tag"></div>
+    <div class="pkg-modal-name" id="pm-name"></div>
+    <div class="pkg-modal-price" id="pm-price"></div>
+    <ul class="pkg-modal-feats" id="pm-feats"></ul>
+    <a class="pkg-modal-wa" href="#" id="pm-wa-btn" onclick="openWAFromModal(event)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.524 5.847L.057 23.882l6.19-1.443A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.805 9.805 0 01-5.001-1.368l-.36-.214-3.713.865.938-3.62-.234-.373A9.79 9.79 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+      Pesan Paket Ini via WhatsApp
+    </a>
+    <button class="pkg-modal-close" onclick="document.getElementById('pkg-modal').classList.remove('open')">Tutup</button>
+  </div>
+</div>
+
+<script>
+const PASS = '170598';
+let unlocked = false;
+let currentPkgMsg = '';
+
+// ── EDITABLE IDS ──
+const editableIds = ['txt-brand','txt-title','spring-name','spring-sub','spring-pill','summer-name','summer-sub','summer-pill','autumn-name','autumn-sub','autumn-pill','editor-name','editor-pill','txt-location'];
+const featSelectors = ['#spring-feat .feat','#summer-feat .feat','#autumn-feat .feat','#editor-feat .feat'];
+
+function setEditable(state) {
+  editableIds.forEach(id => { const el = document.getElementById(id); if(el) el.contentEditable = state; });
+  featSelectors.forEach(sel => document.querySelectorAll(sel).forEach(el => el.contentEditable = state));
+  // pkg click only when locked
+  ['spring','summer','autumn','editor'].forEach(p => {
+    const el = document.getElementById('pkg-'+p);
+    if(el) el.style.pointerEvents = state === 'true' ? 'none' : 'auto';
+  });
+  const waEdit = document.getElementById('wa-edit');
+  const waDisplay = document.getElementById('wa-display');
+  const waHint = document.getElementById('wa-hint');
+  if(state === 'true') {
+    waDisplay.style.display = 'none'; waEdit.style.display = 'block'; waHint.style.display = 'block';
+  } else {
+    waDisplay.style.display = 'block'; waEdit.style.display = 'none'; waHint.style.display = 'none';
+    waDisplay.textContent = waEdit.value || '+6287842480056';
+  }
+}
+
+// ── PASSWORD MODAL ──
+function openModal() {
+  if(unlocked) { lockEdit(); return; }
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modal-input').value = '';
+  document.getElementById('modal-err').textContent = '';
+  setTimeout(() => document.getElementById('modal-input').focus(), 100);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function checkPass() {
+  if(document.getElementById('modal-input').value === PASS) {
+    unlocked = true; closeModal();
+    document.getElementById('color-toolbar').classList.add('visible');
+    setEditable('true');
+    const btn = document.getElementById('lock-btn');
+    btn.classList.add('active');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Edit aktif';
+  } else {
+    document.getElementById('modal-err').textContent = 'Password salah, coba lagi!';
+    document.getElementById('modal-input').value = '';
+    document.getElementById('modal-input').focus();
+  }
+}
+function lockEdit() {
+  unlocked = false;
+  document.getElementById('color-toolbar').classList.remove('visible');
+  setEditable('false');
+  const btn = document.getElementById('lock-btn');
+  btn.classList.remove('active');
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Edit mode';
+}
+document.getElementById('modal').addEventListener('click', e => { if(e.target === document.getElementById('modal')) closeModal(); });
+
+// ── PACKAGE MODAL ──
+const pkgData = {
+  spring: {
+    tag: 'Paket Spring', tagBg: '#3d6b25', tagColor: '#e8f5dd',
+    nameId: 'spring-name', pillId: 'spring-pill', subId: 'spring-sub',
+    featId: 'spring-feat'
+  },
+  summer: {
+    tag: 'Paket Summer', tagBg: '#7a5e10', tagColor: '#fdf5d0',
+    nameId: 'summer-name', pillId: 'summer-pill', subId: 'summer-sub',
+    featId: 'summer-feat'
+  },
+  autumn: {
+    tag: 'Paket Autumn', tagBg: '#8a3a18', tagColor: '#fdf0e8',
+    nameId: 'autumn-name', pillId: 'autumn-pill', subId: 'autumn-sub',
+    featId: 'autumn-feat'
+  },
+  editor: {
+    tag: 'Editor Only', tagBg: '#1a5070', tagColor: '#e4f2fa',
+    nameId: 'editor-name', pillId: 'editor-pill', subId: null,
+    featId: 'editor-feat'
+  }
+};
+
+function showPkg(key) {
+  if(unlocked) return;
+  const d = pkgData[key];
+  const name = document.getElementById(d.nameId).innerText;
+  const price = 'Rp ' + document.getElementById(d.pillId).innerText;
+  const sub = d.subId ? document.getElementById(d.subId).innerText : '';
+  const feats = [...document.querySelectorAll('#'+d.featId+' .feat')].map(f => f.innerText);
+
+  document.getElementById('pm-tag').textContent = d.tag;
+  document.getElementById('pm-tag').style.background = d.tagBg;
+  document.getElementById('pm-tag').style.color = d.tagColor;
+  document.getElementById('pm-name').textContent = name + (sub ? ' — ' + sub : '');
+  document.getElementById('pm-price').textContent = price;
+
+  const featList = document.getElementById('pm-feats');
+  featList.innerHTML = feats.map(f => `<li>${f}</li>`).join('');
+
+  currentPkgMsg = encodeURIComponent(`Halo Dashstudio 77! Saya mau tanya tentang *${name}* (Rp ${document.getElementById(d.pillId).innerText}). Bisa diinfo lebih lanjut?`);
+  document.getElementById('pkg-modal').classList.add('open');
+}
+
+function closePkgModal(e) {
+  if(e.target === document.getElementById('pkg-modal')) document.getElementById('pkg-modal').classList.remove('open');
+}
+
+function openWAFromModal(e) {
+  e.preventDefault();
+  const raw = document.getElementById('wa-edit').value.replace(/\D/g,'');
+  const num = raw.startsWith('0') ? '62'+raw.slice(1) : raw;
+  window.open('https://wa.me/'+num+'?text='+currentPkgMsg, '_blank');
+}
+
+function openWA(e, msg) {
+  e.preventDefault();
+  const raw = document.getElementById('wa-edit').value.replace(/\D/g,'');
+  const num = raw.startsWith('0') ? '62'+raw.slice(1) : raw;
+  const text = msg || encodeURIComponent('Halo, saya mau tanya tentang paket Dashstudio 77');
+  window.open('https://wa.me/'+num+'?text='+text, '_blank');
+}
+
+// ── COLORS ──
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return{r,g,b};}
+function luminance(hex){const{r,g,b}=hexToRgb(hex);return 0.299*r+0.587*g+0.114*b;}
+function textColor(bg){return luminance(bg)>140?'#1a1a1a':'#ffffff';}
+function lighten(hex,amt){let{r,g,b}=hexToRgb(hex);r=Math.min(255,r+amt);g=Math.min(255,g+amt);b=Math.min(255,b+amt);return'#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}
+function applyPkg(hdrId,pId,fId,nId,bgColor,pillColor){
+  const tc=textColor(bgColor),featBg=lighten(bgColor,30),featTc=textColor(featBg),pillTc=textColor(pillColor);
+  const hdr=document.getElementById(hdrId);
+  if(hdr){hdr.style.background=bgColor;hdr.style.color=tc;}
+  const pill=document.getElementById(pId);
+  if(pill){pill.style.background=pillColor;pill.style.color=pillTc;}
+  const feat=document.getElementById(fId);
+  if(feat){feat.style.background=featBg;feat.style.color=featTc;}
+  const name=document.getElementById(nId);
+  if(name)name.style.color=tc;
+  if(hdr)hdr.querySelectorAll('.pkg-sub').forEach(s=>s.style.color=tc);
+}
+const cfg=[
+  ['c-spring-bg','c-spring-pill','spring-header','spring-pill','spring-feat','spring-name'],
+  ['c-summer-bg','c-summer-pill','summer-header','summer-pill','summer-feat','summer-name'],
+  ['c-autumn-bg','c-autumn-pill','autumn-header','autumn-pill','autumn-feat','autumn-name'],
+  ['c-editor-bg','c-editor-pill','editor-header','editor-pill','editor-feat','editor-name'],
+];
+cfg.forEach(([bgId,pillId,hdrId,pId,fId,nId])=>{
+  const bgEl=document.getElementById(bgId),pillEl=document.getElementById(pillId);
+  function update(){applyPkg(hdrId,pId,fId,nId,bgEl.value,pillEl.value);}
+  bgEl.addEventListener('input',update);pillEl.addEventListener('input',update);update();
+});
+document.getElementById('c-wa').addEventListener('input',function(){document.getElementById('wa-section').style.background=this.value;});
+</script>
+</body>
+</html>
